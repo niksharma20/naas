@@ -6,6 +6,7 @@ metadata:
   namespace: openshift-gitops
   labels:
     argocd/app-name: ${{values.component_id}}
+    type: eda
   annotations:
     argocd/app-name: ${{values.component_id}}
   finalizers:
@@ -23,6 +24,7 @@ spec:
     managedNamespaceMetadata:
       labels: 
         argocd.argoproj.io/managed-by: openshift-gitops
+        type: eda
     automated: 
       prune: true
       selfHeal: true
