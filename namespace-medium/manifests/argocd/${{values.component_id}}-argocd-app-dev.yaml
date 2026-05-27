@@ -20,12 +20,8 @@ spec:
     server: https://kubernetes.default.svc
     namespace: ${{values.component_id}}
   syncPolicy:
-    managedNamespaceMetadata:
-      labels: 
-        argocd.argoproj.io/managed-by: openshift-gitops
     automated: 
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
       - PruneLast=true
