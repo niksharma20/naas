@@ -17,24 +17,17 @@ spec:
       required:
         - component_id
       properties:
-        component_id:
+        component_id: 
           title: Namespace
           type: string
           description: Namespace
           default: dev-medium
-        eda_governance:
-          title: EDA - Governance
-          type: boolean
-          description: Check this to enable EDA governance routing and labels on the namespace.
-          default: false
-
   steps:
     - id: fetch-provision-data
       name: Fetch Provision Data
       action: catalog:fetch
       input:
         entityRef: component:default/provisioning-data
-
     - id: templateSource
       name: Generating the source code component
       action: fetch:template
@@ -43,15 +36,13 @@ spec:
         targetPath: ./source
         values:
           owner: rhdh
-          namespace: ${{parameters.component_id}}
+          namespace: ${{parameters.namespace}}
           component_id: ${{parameters.component_id}}
           cluster_id: ${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}
           host: gitlab-gitlab.${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}
           repoName: ${{parameters.component_id}}
           user_id: rhdh
           destination: rhdh/${{ parameters.component_id }}
-          eda_governance: ${{ parameters.eda_governance }}
-
     - id: publishSource
       name: Publish
       action: publish:gitlab
@@ -59,7 +50,7 @@ spec:
         sourcePath: ./source
         repoUrl: 'gitlab-gitlab.${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}?owner=rhdh&repo=${{parameters.component_id}}'
         repoVisibility: public
-
+  
     - id: registerSource
       name: Registering the Source Code Component
       action: catalog:register
@@ -76,28 +67,25 @@ spec:
         values:
           component_id: ${{parameters.component_id}}
           description: ${{parameters.description}}
-          destination: https://gitlab-gitlab.${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}/rhdh/${{parameters.component_id}}-gitops.git
+          destination:  https://gitlab-gitlab.${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}/rhdh/${{parameters.component_id}}-gitops.git
           source_repository: https://gitlab-gitlab.${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}/rhdh/${{parameters.component_id}}.git
           repository_name: ${{parameters.component_id}}
           git_host: gitlab-gitlab.${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}
           cluster: ${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}
-          namespace: ${{parameters.component_id}}
+          namespace: ${{parameters.namespace}}
           user_id: rhdh
-          eda_governance: ${{ parameters.eda_governance }}
         targetPath: ./tenant-gitops
-
     - id: publishGitops
       name: Publishing to Deployment Resource Repository
       action: publish:gitlab
       input:
         repoUrl: 'gitlab-gitlab.${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}?owner=rhdh&repo=${{parameters.component_id}}-gitops'
-        title: gitops resources for ${{parameters.component_id}}-gitops
-        description: gitops resources for ${{parameters.component_id}}-gitops
+        title: gitops resources for ${{parameters.namespace}}-gitops
+        description: gitops resources for ${{parameters.namespace}}-gitops
         sourcePath: ./tenant-gitops
         defaultBranch: main
         protectDefaultBranch: false
         repoVisibility: public
-
     - id: createArgoResources
       name: Create ArgoCD Resources
       action: argocd:create-resources
@@ -107,7 +95,6 @@ spec:
         namespace: openshift-gitops
         repoUrl: https://gitlab-gitlab.${{ steps["fetch-provision-data"].output.entity.metadata.labels["ocp-apps-domain"] }}/rhdh/${{parameters.component_id}}-gitops.git
         path: 'argocd/'
-
   output:
     links:
       - title: Source Code Repository

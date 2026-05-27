@@ -5,7 +5,6 @@ app:
   name: ${{values.component_id}}
   namespace: ${{values.component_id}}
   cluster: ${{values.cluster}}
-  eda: "${{values.eda_governance}}"
 
 git:
   branch: main
