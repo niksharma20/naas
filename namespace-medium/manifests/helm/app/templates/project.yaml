@@ -1,0 +1,13 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  name: {{ .Values.app.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  labels:
+    {{- include "namespace.labels" . | nindent 4 }}
+    {{- include "backstage.labels" . | nindent 4 }}
+    {{- if or (eq .Values.app.eda true) (eq .Values.app.eda "true") }}
+    type: eda
+    {{- end }}
+spec: {}
