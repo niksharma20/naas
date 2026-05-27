@@ -4,9 +4,13 @@ metadata:
   name: {{ .Values.app.name }}
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
+    {{- if or (eq .Values.app.eda true) (eq .Values.app.eda "true") }}
+    eda.ansible.com/watch-events: "PersistentVolumeClaim,Secret,NetworkPolicy"
+    {{- end }}
   labels:
     {{- include "namespace.labels" . | nindent 4 }}
     {{- include "backstage.labels" . | nindent 4 }}
+    argocd.argoproj.io/managed-by: openshift-gitops
     {{- if or (eq .Values.app.eda true) (eq .Values.app.eda "true") }}
     type: eda
     {{- end }}
